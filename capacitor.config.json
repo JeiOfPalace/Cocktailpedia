@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "Beer",
+	"webDir": "www",
+	"bundledWebRuntime": false
+}
