@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import firebase from 'firebase/app';
 import 'firebase/auth';
@@ -18,6 +19,7 @@ export class AuthService {
 
   constructor(
     private afAuth: AngularFireAuth,
+    private firestore: AngularFirestore,
     private router: Router) {
     this.user = afAuth.authState;
     this.user.subscribe(
@@ -55,4 +57,19 @@ export class AuthService {
     return (this.userDetails) ? true : false;
   }
 
+  saveCocktail(
+    id: string,
+    name: string,
+    category: string
+  ) {
+    return this.firestore.collection('usuaris').doc(this.userDetails.uid).collection('cocktails').doc(id).set({
+      id,
+      name,
+      category
+    })
+  }
+
+  deleteCocktail(id: string) {
+    return this.firestore.collection('usuaris').doc(this.userDetails.uid).collection('cocktails').doc(id).delete();
+  }
 }

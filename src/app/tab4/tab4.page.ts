@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
@@ -29,6 +30,7 @@ export class Tab4Page {
     private router: Router,
     private alertCtrl: AlertController,
     public toastController: ToastController,
+    private firestore: AngularFirestore
   ) { }
 
   ngOnInit() {
@@ -46,15 +48,7 @@ export class Tab4Page {
     toast.present();
   }
 
-  removeCocktail(cocktail: any) {
-    for (var i = 0; i < this.authService.cocktails.length; i++) {
-      if (this.authService.cocktails[i] === cocktail) {
-        this.authService.cocktails.splice(i, 1);
-      }
-    }
-    this.cName = "";
-    this.cCategory = "";
-  }
+
 
   async loginUser(): Promise<void> {
     this.authService.loginUser(this.email, this.password)
@@ -122,7 +116,14 @@ export class Tab4Page {
         strDrink: this.cName,
         strCategory: this.cCategory,
         strDrinkThumb: "../../assets/icon/beerIcon.png"
-      })
+      });
+
+      //FIREBASE
+      this.authService.saveCocktail(this.firestore.createId(), this.cName, this.cCategory);
+
+      this.cName = ""
+      this.cCategory = ""
+
     } else {
       for (var i = 0; i < this.authService.cocktails.length; i++) {
         if (this.authService.cocktails[i] === this.auxCocktail) {
@@ -139,5 +140,16 @@ export class Tab4Page {
   editCocktail(cocktail: any) {
     this.updating = true;
     this.auxCocktail = cocktail;
+  }
+
+  removeCocktail(cocktail: any) {
+    for (var i = 0; i < this.authService.cocktails.length; i++) {
+      if (this.authService.cocktails[i] === cocktail) {
+        this.authService.cocktails.splice(i, 1);
+        //this.authService.deleteCocktail(cocktail.id);
+      }
+    }
+    this.cName = "";
+    this.cCategory = "";
   }
 }
