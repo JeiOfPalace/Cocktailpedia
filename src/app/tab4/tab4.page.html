@@ -1,20 +1,161 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Learn
-    </ion-title>
-  </ion-toolbar>
+    <ion-toolbar>
+        <ion-title *ngIf="status == 'profile'">
+            My Profile
+        </ion-title>
+        <ion-title *ngIf="status == 'login'">
+            Log in
+        </ion-title>
+        <ion-title *ngIf="status == 'register'">
+            Register
+        </ion-title>
+        <div *ngIf="authService.isLoggedIn" (click)="logoutUser()" slot="end">
+            <ion-label>Logout</ion-label>
+            <ion-icon style="margin: 0 15px 0 10px" name="exit-outline"></ion-icon>
+        </div>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" style="text-align: center">
 
-  <ion-card style="padding: 40px">
-    <ion-card-content>
-      Click a cocktail to get some details! Play game and try to guess which cocktail appears in the image!
-      <br><br>
-      This app has been developed by Joel de Palau in May 2021, using AngularJS with
-      Ionic framework.
-    </ion-card-content>
-  </ion-card>
+    <div *ngIf="!authService.isLoggedIn && status == 'login'">
+        <ion-item>
+            <ion-label position="floating">Email</ion-label>
+            <ion-input type="text" [(ngModel)]="email" name="email" required></ion-input>
+        </ion-item>
 
+        <ion-item>
+            <ion-label position="floating">Password</ion-label>
+            <ion-input type="password" [(ngModel)]="password" name="password" required></ion-input>
+        </ion-item>
+
+        <ion-button style="display:block; margin:20px" (click)="loginUser()">Login</ion-button>
+
+        <ion-label style="padding:20px">
+            Don't have an account? You can <a style="text-decoration:none" (click)="status = 'register'">register</a>
+        </ion-label>
+    </div>
+
+    <div *ngIf="!authService.isLoggedIn && status == 'register'">
+        <ion-item>
+            <ion-label position="floating">Email</ion-label>
+            <ion-input type="text" [(ngModel)]="email" name="email" required></ion-input>
+        </ion-item>
+
+        <ion-item>
+            <ion-label position="floating">Password</ion-label>
+            <ion-input type="password" [(ngModel)]="password" name="password" required></ion-input>
+        </ion-item>
+
+        <ion-item>
+            <ion-label position="floating">Repeat password</ion-label>
+            <ion-input type="password" [(ngModel)]="password2" name="password2" required></ion-input>
+        </ion-item>
+
+        <ion-button style="display:block; margin:20px" (click)="registerUser()">Register</ion-button>
+
+        <ion-label style="padding:20px">
+            Already have an account? You can <a style="text-decoration:none" (click)="status = 'login'">login</a>
+        </ion-label>
+    </div>
+
+    <div *ngIf="authService.isLoggedIn && !editing && !updating">
+        <ion-list style="margin-bottom: 10px">
+            <ion-item>
+                <ion-label>Email</ion-label>
+                {{ authService.userDetails.email }}
+            </ion-item>
+
+            <ion-item>
+                <ion-label>Score</ion-label>
+                {{ authService.points }}
+            </ion-item>
+
+            <ion-item lines="none">
+                <ion-label>Cocktails ({{authService.cocktails.length}})</ion-label>
+            </ion-item>
+        </ion-list>
+
+        <div style="padding: 40px" *ngIf="authService.cocktails.length == 0">
+            <ion-img src="../../assets/noCocktails.png"></ion-img>
+            <ion-card-content>You have no cocktails!<br />Go to <a href="." style="text-decoration: none">Cocktail Page</a> and save some<br />cocktails or create one!</ion-card-content>
+        </div>
+
+        <div *ngIf="authService.cocktails.length > 0">
+            <ion-list style="padding: 0 30px">
+
+                <ion-item *ngFor="let c of authService.cocktails">
+                    <ion-thumbnail>
+                        <img [src]="c.strDrinkThumb" style="border-radius:50%">
+                    </ion-thumbnail>
+
+                    <ion-label style="margin-left:20px; max-width:60px">{{ c.strDrink }}</ion-label>
+                    <ion-label style="color: rgb(206, 206, 206); margin-left:20px">{{ c.strCategory }}</ion-label>
+
+                    <ion-icon *ngIf="!c.strInstructions" name="create-outline" (click)="editCocktail(c)" style="margin-left:10px">
+                    </ion-icon>
+                    <ion-icon name="trash-outline" (click)="removeCocktail(c)" style="margin-left:10px"></ion-icon>
+                </ion-item>
+
+            </ion-list>
+        </div>
+
+        <ion-fab horizontal="end" slot="fixed" style="position:fixed; bottom:20px; right:20px">
+            <ion-fab-button (click)="editing = true">
+                <ion-icon name="add"></ion-icon>
+            </ion-fab-button>
+        </ion-fab>
+    </div>
+
+    <div style="padding: 40px" *ngIf="authService.isLoggedIn && (editing || updating)">
+
+        <ion-fab horizontal="end" slot="fixed" style="position:fixed; bottom:20px; right:20px">
+
+            <ion-fab-button>
+                <ion-icon name="checkmark"></ion-icon>
+            </ion-fab-button>
+
+            <ion-fab-list side="top">
+
+                <ion-fab-button (click)="cancelCocktail()">
+                    <ion-icon name="trash-outline"></ion-icon>
+                </ion-fab-button>
+
+                <ion-fab-button (click)="saveCocktail()">
+                    <ion-icon name="checkmark"></ion-icon>
+                </ion-fab-button>
+
+            </ion-fab-list>
+        </ion-fab>
+
+        <div *ngIf="!updating">
+            <ion-title style="margin:25px">Create cocktail</ion-title>
+
+            <ion-item>
+                <ion-label position="floating">Name</ion-label>
+                <ion-input type="text" [(ngModel)]="cName" name="cName" required></ion-input>
+            </ion-item>
+
+            <ion-item>
+                <ion-label position="floating">Category</ion-label>
+                <ion-input type="text" [(ngModel)]="cCategory" name="cCategory" required></ion-input>
+            </ion-item>
+        </div>
+
+        <div *ngIf="updating">
+            <ion-title style="margin:25px">Update cocktail</ion-title>
+
+            <ion-item>
+                <ion-label position="floating">Name</ion-label>
+                <ion-input type="text" value="cName" [(ngModel)]="cName" name="cName" required></ion-input>
+            </ion-item>
+
+            <ion-item>
+                <ion-label position="floating">Category</ion-label>
+                <ion-input type="text" value="cCategory" [(ngModel)]="cCategory" name="cCategory" required></ion-input>
+            </ion-item>
+        </div>
+
+        <ion-img style="margin-top: 40px" src="../../assets/createCocktail.png"></ion-img>
+    </div>
 </ion-content>

@@ -1,56 +1,66 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Search cocktails
-    </ion-title>
-  </ion-toolbar>
+    <ion-toolbar>
+        <ion-title>
+            Search cocktails
+        </ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
 
-  <ion-list *ngIf="!myCocktail">
-    <ion-item *ngFor="let c of allCocktails">
-      <ion-thumbnail>
-        <img [src]="c.strDrinkThumb" style="border-radius:40%">
-      </ion-thumbnail>
-      <ion-label style="margin-left:20px">{{ c.strDrink }}</ion-label>
+    <ion-list *ngIf="!myCocktail">
+        <ion-item *ngFor="let c of allCocktails">
+            <ion-thumbnail>
+                <img [src]="c.strDrinkThumb" style="border-radius:50%">
+            </ion-thumbnail>
 
-      <ion-icon *ngIf="!c.starred" (click)="toggleStarred(c)" name="heart-outline"></ion-icon>
-      <ion-icon *ngIf="c.starred" (click)="toggleStarred(c)" name="heart"></ion-icon>
-      <ion-icon (click)="setSelectedCocktail(c)" name="information-circle-outline" style="margin-left:10px">
-      </ion-icon>
-    </ion-item>
-  </ion-list>
+            <ion-label style="margin-left:20px; max-width:60px">{{ c.strDrink }}</ion-label>
+            <ion-label style="color: rgb(206, 206, 206); margin-left:20px">{{ c.strCategory }}</ion-label>
 
-  <ion-card *ngIf="myCocktail">
-    <ion-img [src]="myCocktail.strDrinkThumb"></ion-img>
-
-    <ion-buttons style="position:absolute; top:5px; color:white">
-      <ion-button (click)="clearSelectedCocktail()">
-        <ion-icon name="arrow-back"></ion-icon>
-      </ion-button>
-
-      <ion-badge *ngIf="myCocktail.strAlcoholic != 'Non alcoholic'" color="danger">Alcoholic</ion-badge>
-      <ion-badge *ngIf="myCocktail.strAlcoholic == 'Non alcoholic'" color="success">Alcohol Free</ion-badge>
-
-    </ion-buttons>
-
-    <ion-card-content>
-      <ion-list>
-        <ion-item>
-          <ion-label>Name</ion-label>
-          <p>{{ myCocktail.strDrink }}</p>
+            <ion-icon *ngIf="!c.starred && authService.isLoggedIn" (click)="toggleStarred(c)" name="heart-outline"></ion-icon>
+            <ion-icon *ngIf="c.starred && authService.isLoggedIn" (click)="toggleStarred(c)" name="heart"></ion-icon>
+            <ion-icon (click)="setSelectedCocktail(c)" name="information-circle-outline" style="margin-left:10px">
+            </ion-icon>
         </ion-item>
-        <ion-item>
-          <ion-label>Category</ion-label>
-          <p>{{ myCocktail.strCategory }}</p>
-        </ion-item>
-        <ion-item lines="none">
-          <ion-label>Instructions</ion-label>
-          <p style="width: 60%; padding: 10px 0; text-align: right">{{ myCocktail.strInstructions }}</p>
-        </ion-item>
-      </ion-list>
+    </ion-list>
 
-    </ion-card-content>
-  </ion-card>
+    <ion-card *ngIf="myCocktail">
+        <ion-img [src]="myCocktail.strDrinkThumb"></ion-img>
+
+        <ion-buttons style="position:absolute; top:5px; color:white">
+            <ion-button (click)="clearSelectedCocktail()">
+                <ion-icon name="arrow-back"></ion-icon>
+            </ion-button>
+
+            <ion-badge *ngIf="myCocktail.strAlcoholic != 'Non alcoholic'" color="danger">Alcoholic</ion-badge>
+            <ion-badge *ngIf="myCocktail.strAlcoholic == 'Non alcoholic'" color="success">Alcohol Free</ion-badge>
+        </ion-buttons>
+
+        <ion-buttons *ngIf="authService.isLoggedIn" style="position:absolute; top:5px; right:5px; color:white">
+            <ion-button *ngIf="!myCocktail.starred" (click)="toggleStarred(myCocktail)">
+                <ion-icon name="heart-outline"></ion-icon>
+            </ion-button>
+            <ion-button *ngIf="myCocktail.starred" (click)="toggleStarred(myCocktail)">
+                <ion-icon name="heart"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+
+        <ion-card-content>
+            <ion-list>
+                <ion-item>
+                    <ion-label>Name</ion-label>
+                    <p>{{ myCocktail.strDrink }}</p>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Category</ion-label>
+                    <p>{{ myCocktail.strCategory }}</p>
+                </ion-item>
+                <ion-item lines="none">
+                    <ion-label>Instructions</ion-label>
+                    <p style="width: 60%; padding: 10px 0; text-align: right">{{ myCocktail.strInstructions }}</p>
+                </ion-item>
+            </ion-list>
+
+        </ion-card-content>
+    </ion-card>
 </ion-content>

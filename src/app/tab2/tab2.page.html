@@ -1,30 +1,40 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Play!
-    </ion-title>
-    <ion-title slot="end">
-      Points: {{ points }}
-    </ion-title>
-  </ion-toolbar>
+    <ion-toolbar>
+        <ion-title>
+            Play!
+        </ion-title>
+        <ion-title slot="end">
+            Points: {{ user.points }}
+        </ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
 
-  <ion-buttons style="position:absolute; top:60px; color:white">
-    <ion-button (click)="reset()">
-      <ion-icon name="refresh-outline"></ion-icon>
-    </ion-button>
-  </ion-buttons>
+    <div *ngIf="user.isLoggedIn">
+        <ion-buttons style="position:absolute; top:60px; color:white">
+            <ion-button (click)="reset()">
+                <ion-icon name="refresh-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
 
-  <ion-img [src]="correctCocktail.strDrinkThumb"></ion-img>
-  <ion-card-content>
-    <ion-list id="randomCocktails">
-      <ion-item *ngFor="let r of randomCocktails; let i = index">
-        <label>{{ i + 1 }}&ensp;</label>
-        <ion-button fill="clear" expand="full" (click)="getAnswer(r)">{{ r.strDrink }}</ion-button>
-      </ion-item>
-    </ion-list>
-  </ion-card-content>
+        <ion-img [src]="correctCocktail.strDrinkThumb"></ion-img>
+        <ion-card-content>
+            <ion-list id="randomCocktails">
+                <ion-item *ngFor="let r of randomCocktails; let i = index">
+                    <label>{{ i + 1 }}&ensp;</label>
+                    <ion-button fill="clear" expand="full" (click)="getAnswer(r)">{{ r.strDrink }}</ion-button>
+                </ion-item>
+            </ion-list>
+        </ion-card-content>
+    </div>
+
+    <div style="padding: 40px" *ngIf="!user.isLoggedIn">
+        <ion-img style="margin-bottom: 60px" src="../../assets/logOut.png"></ion-img>
+        <ion-card-content style="text-align: center">
+            You are not logged yet!
+            <br/><br/>This app has been developed by <strong>Joel de Palau</strong> in May 2021, using AngularJS with Ionic framework.
+        </ion-card-content>
+    </div>
 
 </ion-content>

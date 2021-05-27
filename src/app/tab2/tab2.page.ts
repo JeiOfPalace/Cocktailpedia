@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { ToastController } from '@ionic/angular';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-tab2',
@@ -14,9 +15,9 @@ export class Tab2Page {
   public correctCocktail: any = "";
   public answer: any = "";
   public message: string = "";
-  public points: number = 0;
 
   constructor(
+    private user: AuthService,
     private http: HttpClient,
     public toastController: ToastController
   ) { }
@@ -59,10 +60,10 @@ export class Tab2Page {
 
     if (this.answer == this.correctCocktail) {
       this.presentToast("Correct!", "success");
-      this.points++;
+      this.user.points++;
     } else {
-      this.points--;
-      if (this.points < 0) this.points = 0;
+      this.user.points--;
+      if (this.user.points < 0) this.user.points = 0;
       this.presentToast("Incorrect. It was " + this.correctCocktail['strDrink'] + " drink...", "danger");
     }
 
@@ -70,7 +71,7 @@ export class Tab2Page {
   }
 
   reset() {
-    this.points = 0;
+    this.user.points = 0;
     this.ngOnInit()
   }
 }
