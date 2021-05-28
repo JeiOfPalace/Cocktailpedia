@@ -85,7 +85,7 @@ export class AuthService {
     return this.firestore.collection('usuaris').doc(this.userDetails.uid).collection('cocktails').doc(id).update({
       "name": newName,
       "category": newCategory
-  });
+    });
   }
 
 }

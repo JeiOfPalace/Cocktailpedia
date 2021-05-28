@@ -35,14 +35,15 @@ export class Tab1Page {
 
   toggleStarred(cocktail: any) {
     cocktail.starred = !cocktail.starred;
+
     if (cocktail.starred) {
       this.authService.cocktails.push(cocktail)
       this.authService.saveCocktail(cocktail.idDrink, cocktail.strDrink, cocktail.strCategory)
     } else {
-      for (var i = 0; i < this.authService.cocktails.length; i++) {
-        if (this.authService.cocktails[i] === cocktail) {
+      for (let i = 0; i < this.authService.cocktails.length; i++) {
+        if (this.authService.cocktails[i] == cocktail) {
+          this.authService.deleteCocktail(cocktail.idDrink)
           this.authService.cocktails.splice(i, 1);
-          this.authService.deleteCocktail(cocktail.idDrink);
         }
       }
     }

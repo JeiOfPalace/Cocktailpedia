@@ -50,8 +50,6 @@ export class Tab4Page {
     toast.present();
   }
 
-
-
   async loginUser(): Promise<void> {
     this.authService.loginUser(this.email, this.password)
       .then(() => {
@@ -105,26 +103,31 @@ export class Tab4Page {
       })
   }
 
-  cancelCocktail() {
+  refreshData() {
     this.cName = "";
     this.cCategory = "";
+  }
+
+  cancelCocktail() {
+    this.refreshData();
     this.editing = false;
     this.updating = false;
   }
 
   saveCocktail() {
     if (!this.updating) {
-      this.authService.cocktails.push({
-        strDrink: this.cName,
-        strCategory: this.cCategory,
-        strDrinkThumb: "../../assets/icon/beerIcon.png"
-      });
+      this.authService.cocktails.push(
+        {
+          strDrink: this.cName,
+          strCategory: this.cCategory,
+          strDrinkThumb: "../../assets/icon/beerIcon.png"
+        }
+      );
 
       //FIREBASE
       this.authService.saveCocktail(this.firestore.createId(), this.cName, this.cCategory);
 
-      this.cName = ""
-      this.cCategory = ""
+      this.refreshData();
 
     } else {
       for (var i = 0; i < this.authService.cocktails.length; i++) {
@@ -149,12 +152,11 @@ export class Tab4Page {
   removeCocktail(cocktail: any) {
     for (var i = 0; i < this.authService.cocktails.length; i++) {
       if (this.authService.cocktails[i] === cocktail) {
+        this.authService.deleteCocktail(cocktail.idDrink)
         this.authService.cocktails.splice(i, 1);
-        this.authService.deleteCocktail(cocktail.idDrink);
         this.tab1page.toggleStarred(cocktail);
       }
     }
-    this.cName = "";
-    this.cCategory = "";
+    this.refreshData();
   }
 }
