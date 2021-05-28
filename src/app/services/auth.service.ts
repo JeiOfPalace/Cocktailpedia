@@ -45,15 +45,11 @@ export class AuthService {
       .createUserWithEmailAndPassword(email, password);
   }
 
-  resetPassword(email: string): Promise<void> {
-    return firebase.auth().sendPasswordResetEmail(email);
-  }
-
   logoutUser(): Promise<void> {
     return firebase.auth().signOut();
   }
 
-  get isLoggedIn() {
+  get isLoggedIn(): boolean {
     return (this.userDetails) ? true : false;
   }
 
@@ -62,14 +58,34 @@ export class AuthService {
     name: string,
     category: string
   ) {
-    return this.firestore.collection('usuaris').doc(this.userDetails.uid).collection('cocktails').doc(id).set({
-      id,
-      name,
-      category
-    })
+    return this.firestore.collection('usuaris').doc(this.userDetails.uid).collection('cocktails').doc(id).set(
+      {
+        id,
+        name,
+        category
+      }
+    )
   }
 
   deleteCocktail(id: string) {
     return this.firestore.collection('usuaris').doc(this.userDetails.uid).collection('cocktails').doc(id).delete();
   }
+
+  //?????
+  getCocktails() {
+    this.firestore.collection('usuaris').doc(this.userDetails.uid).collection('cocktails').get()
+    /*
+    const snapshot = await firebase.firestore().collection('usuaris').doc(this.userDetails.uid).collection('cocktails').get()
+    return snapshot.docs.map(doc => doc.data());
+    */
+  }
+
+  //?????
+  updateCocktail(id: string, newName: string, newCategory: string) {
+    return this.firestore.collection('usuaris').doc(this.userDetails.uid).collection('cocktails').doc(id).update({
+      "name": newName,
+      "category": newCategory
+  });
+  }
+
 }

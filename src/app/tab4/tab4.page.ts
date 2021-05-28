@@ -3,6 +3,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
+import { Tab1Page } from '../tab1/tab1.page';
 
 @Component({
   selector: 'app-tab4',
@@ -30,7 +31,8 @@ export class Tab4Page {
     private router: Router,
     private alertCtrl: AlertController,
     public toastController: ToastController,
-    private firestore: AngularFirestore
+    private firestore: AngularFirestore,
+    private tab1page: Tab1Page
   ) { }
 
   ngOnInit() {
@@ -138,6 +140,8 @@ export class Tab4Page {
   }
 
   editCocktail(cocktail: any) {
+    this.cName = cocktail.strDrink;
+    this.cCategory = cocktail.strCategory;
     this.updating = true;
     this.auxCocktail = cocktail;
   }
@@ -146,7 +150,8 @@ export class Tab4Page {
     for (var i = 0; i < this.authService.cocktails.length; i++) {
       if (this.authService.cocktails[i] === cocktail) {
         this.authService.cocktails.splice(i, 1);
-        //this.authService.deleteCocktail(cocktail.id);
+        this.authService.deleteCocktail(cocktail.idDrink);
+        this.tab1page.toggleStarred(cocktail);
       }
     }
     this.cName = "";
