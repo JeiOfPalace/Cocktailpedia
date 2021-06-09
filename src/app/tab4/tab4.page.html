@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
     <ion-toolbar>
         <ion-title *ngIf="status == 'profile'">
-            My Profile
+            {{ authService.userDetails.email }}
         </ion-title>
         <ion-title *ngIf="status == 'login'">
             Log in
@@ -72,19 +72,21 @@
             </ion-item>
 
             <ion-item lines="none">
-                <ion-label>Cocktails ({{authService.cocktails.length}})</ion-label>
+                <ion-label>Cocktails</ion-label>
+                <ion-icon color="primary" style="margin: 0 15px 0 10px" name="refresh-outline" (click)="retrieveCocktails('refresh')"></ion-icon>
+                {{ cocktails.length }}
             </ion-item>
         </ion-list>
 
-        <div style="padding: 40px" *ngIf="authService.cocktails.length == 0">
+        <div style="padding: 40px" *ngIf="cocktails.length == 0">
             <ion-img src="../../assets/noCocktails.png"></ion-img>
             <ion-card-content>You have no cocktails!<br />Go to <a href="." style="text-decoration: none">Cocktail Page</a> and save some<br />cocktails or create one!</ion-card-content>
         </div>
 
-        <div *ngIf="authService.cocktails.length > 0">
+        <div *ngIf="cocktails.length > 0">
             <ion-list style="padding: 0 30px">
 
-                <ion-item *ngFor="let c of authService.cocktails">
+                <ion-item *ngFor="let c of cocktails">
                     <ion-thumbnail>
                         <img [src]="c.strDrinkThumb" style="border-radius:50%">
                     </ion-thumbnail>
@@ -94,7 +96,7 @@
 
                     <ion-icon *ngIf="!c.strInstructions" name="create-outline" (click)="editCocktail(c)" style="margin-left:10px">
                     </ion-icon>
-                    <ion-icon name="trash-outline" (click)="removeCocktail(c)" style="margin-left:10px"></ion-icon>
+                    <ion-icon name="trash-outline" (click)="removeCocktail(c.idDrink, c)" style="margin-left:10px"></ion-icon>
                 </ion-item>
 
             </ion-list>
@@ -109,36 +111,17 @@
 
     <div style="padding: 40px" *ngIf="authService.isLoggedIn && (editing || updating)">
 
-        <ion-fab horizontal="end" slot="fixed" style="position:fixed; bottom:20px; right:20px">
-
-            <ion-fab-button>
-                <ion-icon name="checkmark"></ion-icon>
-            </ion-fab-button>
-
-            <ion-fab-list side="top">
-
-                <ion-fab-button (click)="cancelCocktail()">
-                    <ion-icon name="trash-outline"></ion-icon>
-                </ion-fab-button>
-
-                <ion-fab-button (click)="saveCocktail()">
-                    <ion-icon name="checkmark"></ion-icon>
-                </ion-fab-button>
-
-            </ion-fab-list>
-        </ion-fab>
-
         <div *ngIf="!updating">
             <ion-title style="margin:25px">Create cocktail</ion-title>
 
             <ion-item>
                 <ion-label position="floating">Name</ion-label>
-                <ion-input type="text" [(ngModel)]="cName" name="cName" required></ion-input>
+                <ion-input type="text" [(ngModel)]="cName" required></ion-input>
             </ion-item>
 
             <ion-item>
                 <ion-label position="floating">Category</ion-label>
-                <ion-input type="text" [(ngModel)]="cCategory" name="cCategory" required></ion-input>
+                <ion-input type="text" [(ngModel)]="cCategory" required></ion-input>
             </ion-item>
         </div>
 
@@ -147,14 +130,31 @@
 
             <ion-item>
                 <ion-label position="floating">Name</ion-label>
-                <ion-input type="text" value="cName" [(ngModel)]="cName" name="cName" required></ion-input>
+                <ion-input type="text" [(ngModel)]="newCocktail.strDrink" required></ion-input>
             </ion-item>
 
             <ion-item>
                 <ion-label position="floating">Category</ion-label>
-                <ion-input type="text" value="cCategory" [(ngModel)]="cCategory" name="cCategory" required></ion-input>
+                <ion-input type="text" [(ngModel)]="newCocktail.strCategory" required></ion-input>
             </ion-item>
         </div>
+
+        <ion-fab horizontal="end" slot="fixed" style="position:fixed; bottom:20px; right:20px">
+
+            <ion-fab-button>
+                <ion-icon name="checkmark"></ion-icon>
+            </ion-fab-button>
+
+            <ion-fab-list side="top">
+                <ion-fab-button (click)="cancelCocktail()">
+                    <ion-icon name="trash-outline"></ion-icon>
+                </ion-fab-button>
+
+                <ion-fab-button (click)="saveCocktail()">
+                    <ion-icon name="checkmark"></ion-icon>
+                </ion-fab-button>
+            </ion-fab-list>
+        </ion-fab>
 
         <ion-img style="margin-top: 40px" src="../../assets/createCocktail.png"></ion-img>
     </div>

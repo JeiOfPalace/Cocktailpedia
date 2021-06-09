@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { Cocktail } from '../models/cocktail';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -9,7 +10,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class Tab1Page {
 
-  public allCocktails: Array<any> = [];
+  public allCocktails: Array<Cocktail> = [];
   public myCocktail: any;
 
   constructor(
@@ -33,19 +34,11 @@ export class Tab1Page {
     this.myCocktail = cocktail;
   }
 
-  toggleStarred(cocktail: any) {
-    cocktail.starred = !cocktail.starred;
-
+  toggleStarred(cocktail: Cocktail) {
     if (cocktail.starred) {
-      this.authService.cocktails.push(cocktail)
-      this.authService.saveCocktail(cocktail.idDrink, cocktail.strDrink, cocktail.strCategory)
+      this.authService.deleteCocktail(cocktail.idDrink);
     } else {
-      for (let i = 0; i < this.authService.cocktails.length; i++) {
-        if (this.authService.cocktails[i] == cocktail) {
-          this.authService.deleteCocktail(cocktail.idDrink)
-          this.authService.cocktails.splice(i, 1);
-        }
-      }
+      this.authService.addCocktail(cocktail)
     }
   }
 

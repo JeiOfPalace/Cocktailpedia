@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
+import { map } from 'rxjs/operators';
+import { Cocktail } from '../models/cocktail';
 import { AuthService } from '../services/auth.service';
 import { Tab1Page } from '../tab1/tab1.page';
 
@@ -11,7 +13,7 @@ import { Tab1Page } from '../tab1/tab1.page';
   styleUrls: ['tab4.page.scss']
 })
 
-export class Tab4Page {
+export class Tab4Page implements OnInit {
 
   email: string = "";
   password: string = "";
@@ -21,10 +23,12 @@ export class Tab4Page {
   editing: boolean = false;
   updating: boolean = false;
 
+  newCocktail: Cocktail;
+  auxCocktail: Cocktail;
+  cocktails = [];
+
   cName: string = "";
   cCategory: string = "";
-
-  auxCocktail: any = "";
 
   constructor(
     private authService: AuthService,
@@ -36,14 +40,34 @@ export class Tab4Page {
   ) { }
 
   ngOnInit() {
-    this.status = (!this.authService.isLoggedIn) ? "login" : "profile"
+    this.status = (!this.authService.isLoggedIn) ? "login" : "profile";
+    this.retrieveCocktails();
   }
 
-  async presentToast(message: string, color: string) {
+  retrieveCocktails(param?: string): void {
+    if (this.authService.isLoggedIn) {
+      if (param) {
+        this.presentToast("Refreshed!", "success", 500)
+      }
+
+      console.log("aAA2")
+      this.authService.getCocktails().snapshotChanges().pipe(
+        map(changes =>
+          changes.map(c =>
+            ({ id: c.payload.doc.id, ...c.payload.doc.data() })
+          )
+        )
+      ).subscribe(data => {
+        this.cocktails = data;
+      });
+    }
+  }
+
+  async presentToast(message: string, color: string, duration?: number) {
     const toast = await this.toastController.create({
       message: message,
       color: color,
-      duration: 2000,
+      duration: duration ? duration : 2000,
       position: "top",
       translucent: true
     });
@@ -75,16 +99,9 @@ export class Tab4Page {
   async registerUser(): Promise<void> {
     if (this.password === this.password2) {
       this.authService.signupUser(this.email, this.password)
-        .then(() => {
-          this.status = "profile"
-        })
-        .then(() => {
-          this.presentToast("Account successfully created", "success");
-        })
-        .then(
-          () => {
-            this.router.navigate(["."]);
-          },
+        .then(() => { this.status = "profile" })
+        .then(() => { this.presentToast("Account successfully created", "success"); })
+        .then(() => { this.router.navigate(["."]); },
           async error => {
             const alert = await this.alertCtrl.create({
               message: error.message,
@@ -97,66 +114,47 @@ export class Tab4Page {
   }
 
   async logoutUser(): Promise<void> {
-    this.authService.logoutUser()
-      .then(() => {
-        this.status = "login"
-      })
+    this.authService.logoutUser().then(() => { this.status = "login" });
   }
 
   refreshData() {
-    this.cName = "";
-    this.cCategory = "";
+    //this.updatedCocktail = null
+    this.retrieveCocktails;
   }
 
   cancelCocktail() {
-    this.refreshData();
     this.editing = false;
     this.updating = false;
+    this.refreshData();
   }
 
   saveCocktail() {
     if (!this.updating) {
-      this.authService.cocktails.push(
+      this.authService.addCocktail(
         {
+          idDrink: this.firestore.createId(),
           strDrink: this.cName,
           strCategory: this.cCategory,
           strDrinkThumb: "../../assets/icon/beerIcon.png"
         }
-      );
-
-      //FIREBASE
-      this.authService.saveCocktail(this.firestore.createId(), this.cName, this.cCategory);
-
-      this.refreshData();
-
+      )
     } else {
-      for (var i = 0; i < this.authService.cocktails.length; i++) {
-        if (this.authService.cocktails[i] === this.auxCocktail) {
-          this.authService.cocktails[i].strDrink = this.cName;
-          this.authService.cocktails[i].strCategory = this.cCategory;
-        }
-      }
+      this.authService.updateCocktail(this.newCocktail)
     }
-
     this.editing = false;
     this.updating = false;
+    this.refreshData();
   }
 
-  editCocktail(cocktail: any) {
-    this.cName = cocktail.strDrink;
-    this.cCategory = cocktail.strCategory;
+  editCocktail(cocktail: Cocktail) {
+    this.newCocktail = new Cocktail(cocktail.idDrink, cocktail.strDrink, cocktail.strCategory)
     this.updating = true;
     this.auxCocktail = cocktail;
   }
 
-  removeCocktail(cocktail: any) {
-    for (var i = 0; i < this.authService.cocktails.length; i++) {
-      if (this.authService.cocktails[i] === cocktail) {
-        this.authService.deleteCocktail(cocktail.idDrink)
-        this.authService.cocktails.splice(i, 1);
-        this.tab1page.toggleStarred(cocktail);
-      }
-    }
+  removeCocktail(id: string, cocktail: Cocktail) {
+    this.authService.deleteCocktail(id);
+    //this.tab1page.toggleStarred(cocktail);
     this.refreshData();
   }
 }
