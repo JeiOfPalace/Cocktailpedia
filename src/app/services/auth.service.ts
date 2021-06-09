@@ -58,24 +58,14 @@ export class AuthService {
   }
 
   deleteCocktail(id: string) {
-    this.cocktailCollection.doc(id).delete().then(() => console.log("cleared"));
+    this.cocktailCollection.doc(id).delete();
   }
 
   getCocktails(): AngularFirestoreCollection<Cocktail> {
     return this.cocktailCollection;
   }
 
-  checkCocktail(cocktail: Cocktail): boolean {
-    var c = this.cocktailCollection.valueChanges()
-    c.forEach(() => {
-      console.log("A: ", c)
-    })
-
-    return false
-  }
-
   updateCocktail(cocktail: Cocktail) {
-    console.log(cocktail)
     return this.cocktailCollection.doc(cocktail.idDrink).update({
       strDrink: cocktail.strDrink,
       strCategory: cocktail.strCategory

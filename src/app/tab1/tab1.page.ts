@@ -26,7 +26,6 @@ export class Tab1Page {
     const apiURL = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?s='
     this.http.get(apiURL).subscribe((data: any) => {
       this.allCocktails = data.drinks;
-      this.allCocktails.sort();
     });
   }
 
@@ -35,10 +34,19 @@ export class Tab1Page {
   }
 
   toggleStarred(cocktail: Cocktail) {
-    if (cocktail.starred) {
+    cocktail.starred = !cocktail.starred;
+
+    if (!cocktail.starred) {
       this.authService.deleteCocktail(cocktail.idDrink);
     } else {
-      this.authService.addCocktail(cocktail)
+      this.authService.addCocktail({
+        idDrink: cocktail.idDrink,
+        strDrink: cocktail.strDrink,
+        strCategory: cocktail.strCategory,
+        strDrinkThumb: cocktail.strDrinkThumb,
+        custom: false,
+        starred: true
+      });
     }
   }
 

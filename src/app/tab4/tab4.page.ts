@@ -23,8 +23,7 @@ export class Tab4Page implements OnInit {
   editing: boolean = false;
   updating: boolean = false;
 
-  newCocktail: Cocktail;
-  auxCocktail: Cocktail;
+  newCocktail: any;
   cocktails = [];
 
   cName: string = "";
@@ -40,26 +39,24 @@ export class Tab4Page implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.status = (!this.authService.isLoggedIn) ? "login" : "profile";
+    this.status = !this.authService.isLoggedIn ? "login" : "profile";
     this.retrieveCocktails();
   }
 
   retrieveCocktails(param?: string): void {
     if (this.authService.isLoggedIn) {
       if (param) {
-        this.presentToast("Refreshed!", "success", 500)
-      }
-
-      console.log("aAA2")
-      this.authService.getCocktails().snapshotChanges().pipe(
-        map(changes =>
-          changes.map(c =>
-            ({ id: c.payload.doc.id, ...c.payload.doc.data() })
+        this.presentToast("Refreshed!", "success", 500);
+        this.authService.getCocktails().snapshotChanges().pipe(
+          map(changes =>
+            changes.map(c =>
+              ({ id: c.payload.doc.id, ...c.payload.doc.data() })
+            )
           )
-        )
-      ).subscribe(data => {
-        this.cocktails = data;
-      });
+        ).subscribe(data => {
+          this.cocktails = data;
+        });
+      }
     }
   }
 
@@ -76,16 +73,9 @@ export class Tab4Page implements OnInit {
 
   async loginUser(): Promise<void> {
     this.authService.loginUser(this.email, this.password)
-      .then(() => {
-        this.status = "profile"
-      })
-      .then(() => {
-        this.presentToast("Hi again!", "success");
-      })
-      .then(
-        () => {
-          this.router.navigate(['/']);
-        },
+      .then(() => { this.status = "profile"; })
+      .then(() => { this.presentToast("Hi again!", "success"); })
+      .then(() => { this.router.navigate(['/']); },
         async error => {
           const alert = await this.alertCtrl.create({
             message: error.message,
@@ -110,22 +100,19 @@ export class Tab4Page implements OnInit {
             await alert.present();
           }
         );
-    } else alert("Passwords are different!")
+    } else alert("Passwords are different!");
   }
 
   async logoutUser(): Promise<void> {
     this.authService.logoutUser().then(() => { this.status = "login" });
   }
 
-  refreshData() {
-    //this.updatedCocktail = null
-    this.retrieveCocktails;
-  }
-
-  cancelCocktail() {
+  refresh() {
     this.editing = false;
     this.updating = false;
-    this.refreshData();
+    this.cName = null;
+    this.cCategory = null;
+    this.retrieveCocktails();
   }
 
   saveCocktail() {
@@ -135,26 +122,27 @@ export class Tab4Page implements OnInit {
           idDrink: this.firestore.createId(),
           strDrink: this.cName,
           strCategory: this.cCategory,
-          strDrinkThumb: "../../assets/icon/beerIcon.png"
+          strDrinkThumb: "../../assets/icon/beerIcon.png",
+          custom: true,
+          starred: true
         }
-      )
-    } else {
-      this.authService.updateCocktail(this.newCocktail)
-    }
-    this.editing = false;
-    this.updating = false;
-    this.refreshData();
+      );
+    } else this.authService.updateCocktail(this.newCocktail);
+    this.refresh();
   }
 
   editCocktail(cocktail: Cocktail) {
-    this.newCocktail = new Cocktail(cocktail.idDrink, cocktail.strDrink, cocktail.strCategory)
+    this.newCocktail = {
+      idDrink: cocktail.idDrink,
+      strDrink: cocktail.strDrink,
+      strCategory: cocktail.strCategory
+    };
     this.updating = true;
-    this.auxCocktail = cocktail;
   }
 
-  removeCocktail(id: string, cocktail: Cocktail) {
-    this.authService.deleteCocktail(id);
-    //this.tab1page.toggleStarred(cocktail);
-    this.refreshData();
+  removeCocktail(cocktail: Cocktail) {
+    this.tab1page.toggleStarred(cocktail);
+    this.authService.deleteCocktail(cocktail.idDrink);
+    this.refresh();
   }
 }

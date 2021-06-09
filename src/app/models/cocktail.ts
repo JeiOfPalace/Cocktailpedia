@@ -3,6 +3,7 @@ export class Cocktail {
     strDrink: string;
     strCategory: string;
     strDrinkThumb: string;
+    custom: boolean;
     starred: boolean;
 
     constructor(id: string, name: string, category: string, thumbail?: string) {
@@ -10,5 +11,7 @@ export class Cocktail {
         this.strDrink = name;
         this.strCategory = category;
         this.strDrinkThumb = thumbail ? thumbail : "../../assets/icon/beerIcon.png";
+        this.custom = true;
+        this.starred = true;
     }
 }
