@@ -12,4 +12,4 @@
 
 <p>Within this app, any unregistered user can search a stack of cocktails for whether they're alcoholic or not, their category and instructions. On the other hand, the registered user can login / logout, save their favorite drinks in a list and manage it. In addition, you can also play a mini-game. The app is not intended for UX/UI design, as the main goal of the project was to learn the basics of cross-platform app development.</p>
 
-<p>I hope you like it!</p>
+<p>Hope you enjoy it!</p>
