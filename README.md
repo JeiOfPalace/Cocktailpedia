@@ -1,4 +1,4 @@
-# MyCocktail
+# Cocktailpedia
 
 <p>This is a project developed at the University in a subject where we learned cross-platform application development. On this occasion, we were asked to develop a web application with the following features:</p>
 
